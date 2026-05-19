@@ -13,6 +13,33 @@ else:
 # PAGE SETTINGS
 st.set_page_config(page_title="SheShield", layout="wide")
 
+# CUSTOM CSS
+st.markdown("""
+<style>
+.main {
+    background-color: #0e1117;
+    color: white;
+}
+
+.stButton>button {
+    background-color: #ff4b6e;
+    color: white;
+    border-radius: 10px;
+    height: 3em;
+    width: 100%;
+    font-size: 18px;
+}
+
+.metric-card {
+    background-color: #1c2333;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0px 0px 15px rgba(255,75,110,0.3);
+}
+</style>
+""", unsafe_allow_html=True)
+
 # SIDEBAR
 st.sidebar.title("🌸 SheShield")
 page = st.sidebar.radio(
@@ -26,25 +53,60 @@ if page == "🏠 Home":
     st.title("🌸 SheShield")
     st.subheader("Smart Women Safety & Emergency Response System")
 
+    st.write("## Features")
+    st.write("• Emergency SOS Alerts")
+    st.write("• Women Safety Dashboard")
+    st.write("• Alert Monitoring")
+    st.write("• Smart Emergency Management")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown("""
+        <div class='metric-card'>
+            <h1>🚨</h1>
+            <h1>24/7</h1>
+            <h3>Emergency Support</h3>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown("""
+        <div class='metric-card'>
+            <h1>🛡️</h1>
+            <h1>100%</h1>
+            <h3>Women Safety Focus</h3>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col3:
+        st.markdown("""
+        <div class='metric-card'>
+            <h1>⚡</h1>
+            <h1>Instant</h1>
+            <h3>Alert Response</h3>
+        </div>
+        """, unsafe_allow_html=True)
+
     st.subheader("📞 24/7 Emergency Helpline")
 
     st.markdown("""
-🚓 <a href="tel:100">Police: 100</a><br>
-🚑 <a href="tel:108">Ambulance: 108</a><br>
-🔥 <a href="tel:101">Fire: 101</a><br>
-👩 <a href="tel:1091">Women Helpline: 1091</a><br>
-🚨 <a href="tel:112">National Emergency: 112</a><br>
-👶 <a href="tel:1098">Child Helpline: 1098</a>
+<a href="tel:100">🚓 Police: 100</a><br>
+<a href="tel:108">🚑 Ambulance: 108</a><br>
+<a href="tel:101">🔥 Fire: 101</a><br>
+<a href="tel:1091">👩 Women Helpline: 1091</a><br>
+<a href="tel:112">🚨 National Emergency: 112</a><br>
+<a href="tel:1098">👶 Child Helpline: 1098</a>
 """, unsafe_allow_html=True)
 
     st.subheader("👨‍👩‍👧 Trusted Contacts")
 
     st.markdown("""
-📞 <a href="tel:8088630512">Trusted Contact 1: 8088630512</a><br>
-📞 <a href="tel:8431918980">Trusted Contact 2: 8431918980</a>
+<a href="tel:8088630512">📞 Trusted Contact 1: 8088630512</a><br>
+<a href="tel:8431918980">📞 Trusted Contact 2: 8431918980</a>
 """, unsafe_allow_html=True)
 
-# SEND SOS
+# SEND SOS PAGE
 elif page == "🚨 Send SOS":
 
     st.title("🚨 Emergency SOS")
