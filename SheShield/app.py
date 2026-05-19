@@ -1,18 +1,11 @@
 import streamlit as st
-import mysql.connector
 import pandas as pd
 import plotly.express as px
 from streamlit_js_eval import get_geolocation
 
-# DATABASE CONNECTION
-db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="root1234",
-    database="sheshield"
-)
-
-cursor = db.cursor()
+# Store alerts in session
+if "alerts" not in st.session_state:
+    st.session_state.alerts = []
 
 # PAGE SETTINGS
 st.set_page_config(
@@ -42,7 +35,6 @@ st.markdown("""
     padding: 20px;
     border-radius: 15px;
     text-align: center;
-    box-shadow: 0px 0px 15px rgba(255,75,110,0.3);
 }
 </style>
 """, unsafe_allow_html=True)
@@ -103,7 +95,6 @@ elif page == "🚨 Send SOS":
 
     name = st.text_input("Enter Your Name")
 
-    # LIVE GPS LOCATION
     loc = get_geolocation()
 
     if loc:
@@ -128,16 +119,13 @@ elif page == "🚨 Send SOS":
 
     if st.button("🚨 SEND EMERGENCY ALERT"):
 
-        query = """
-        INSERT INTO emergency_alerts
-        (name, location, emergency_type)
-        VALUES (%s, %s, %s)
-        """
+        alert = {
+            "Name": name,
+            "Location": location,
+            "Emergency Type": emergency
+        }
 
-        values = (name, location, emergency)
-
-        cursor.execute(query, values)
-        db.commit()
+        st.session_state.alerts.append(alert)
 
         st.success("Emergency Alert Sent Successfully!")
 
@@ -146,47 +134,39 @@ elif page == "📋 View Alerts":
 
     st.title("📋 Emergency Alerts")
 
-    query = "SELECT * FROM emergency_alerts"
-
-    df = pd.read_sql(query, db)
-
-    st.dataframe(df)
+    if st.session_state.alerts:
+        df = pd.DataFrame(st.session_state.alerts)
+        st.dataframe(df)
+    else:
+        st.warning("No alerts found.")
 
 # ANALYTICS PAGE
 elif page == "📊 Analytics":
 
     st.title("📊 Emergency Analytics Dashboard")
 
-    query = "SELECT * FROM emergency_alerts"
+    if st.session_state.alerts:
 
-    df = pd.read_sql(query, db)
+        df = pd.DataFrame(st.session_state.alerts)
 
-    if not df.empty:
-
-        st.subheader("🚨 Total Alerts")
         st.metric("Total Emergency Alerts", len(df))
 
-        # Emergency Type Analytics
         st.subheader("📌 Emergency Types")
 
-        type_count = df["emergency_type"].value_counts()
+        type_count = df["Emergency Type"].value_counts()
 
         fig = px.bar(
             x=type_count.index,
             y=type_count.values,
-            labels={
-                'x': 'Emergency Type',
-                'y': 'Count'
-            },
+            labels={'x': 'Emergency Type', 'y': 'Count'},
             title="Emergency Alerts by Type"
         )
 
         st.plotly_chart(fig)
 
-        # Location Analytics
         st.subheader("📍 Alerts by Location")
 
-        location_count = df["location"].value_counts()
+        location_count = df["Location"].value_counts()
 
         pie = px.pie(
             values=location_count.values,
@@ -196,7 +176,6 @@ elif page == "📊 Analytics":
 
         st.plotly_chart(pie)
 
-        # Full Data
         st.subheader("📋 Full Emergency Data")
         st.dataframe(df)
 
