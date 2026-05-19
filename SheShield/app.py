@@ -3,6 +3,44 @@ import pandas as pd
 import plotly.express as px
 from streamlit_js_eval import get_geolocation
 import os
+import smtplib
+from email.mime.text import MIMEText
+
+def send_email_alert(name, location, emergency):
+
+    sender_email = st.secrets["EMAIL"]
+    app_password = st.secrets["APP_PASSWORD"]
+    receiver_email = st.secrets["EMAIL"]
+
+    subject = "🚨 SheShield SOS ALERT"
+
+    body = f"""
+Emergency Alert Received!
+
+Name: {name}
+Location: {location}
+Emergency Type: {emergency}
+
+Trusted Contacts:
+8088630512
+8431918980
+"""
+
+    msg = MIMEText(body)
+    msg["Subject"] = subject
+    msg["From"] = sender_email
+    msg["To"] = receiver_email
+
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(sender_email, app_password)
+        server.sendmail(sender_email, receiver_email, msg.as_string())
+        server.quit()
+        st.success("📧 Alert sent to Gmail successfully!")
+
+    except Exception:
+        st.error("Email sending failed")
 
 # LOAD ALERTS
 if os.path.exists("alerts.csv"):
@@ -156,6 +194,7 @@ elif page == "🚨 Send SOS":
         df.to_csv("alerts.csv", index=False)
 
         st.success("Emergency Alert Sent Successfully!")
+        send_email_alert(name, location, emergency)
 
         st.warning("""
 🚨 Trusted Contacts:
