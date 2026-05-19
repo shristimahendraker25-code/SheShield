@@ -3,136 +3,28 @@ import pandas as pd
 import plotly.express as px
 from streamlit_js_eval import get_geolocation
 import os
-import smtplib
-from email.mime.text import MIMEText
 
-# ---------------- EMAIL FUNCTION ----------------
-def send_email_alert(name, location, emergency):
-
-    sender_email = "shristimahendraker25@gmail.com"
-    app_password = "PASTE_YOUR_APP_PASSWORD_HERE"
-    receiver_email = "shristimahendraker25@gmail.com"
-
-    subject = "🚨 SheShield SOS ALERT"
-
-    body = f"""
-Emergency Alert Received!
-
-Name: {name}
-Location: {location}
-Emergency Type: {emergency}
-
-Trusted Contacts:
-8088630512
-8431918980
-"""
-
-    msg = MIMEText(body)
-    msg["Subject"] = subject
-    msg["From"] = sender_email
-    msg["To"] = receiver_email
-
-    server = smtplib.SMTP("smtp.gmail.com", 587)
-    server.starttls()
-    server.login(sender_email, app_password)
-    server.sendmail(sender_email, receiver_email, msg.as_string())
-    server.quit()
-
-# ---------------- LOAD ALERTS ----------------
+# LOAD ALERTS
 if os.path.exists("alerts.csv"):
     df = pd.read_csv("alerts.csv")
 else:
     df = pd.DataFrame(columns=["Name", "Location", "Emergency Type"])
 
-# ---------------- PAGE SETTINGS ----------------
-st.set_page_config(
-    page_title="SheShield",
-    layout="wide"
-)
+# PAGE SETTINGS
+st.set_page_config(page_title="SheShield", layout="wide")
 
-# ---------------- CUSTOM CSS ----------------
-st.markdown("""
-<style>
-.main {
-    background-color: #0e1117;
-    color: white;
-}
-
-.stButton>button {
-    background-color: #ff4b6e;
-    color: white;
-    border-radius: 10px;
-    height: 3em;
-    width: 100%;
-    font-size: 18px;
-}
-
-.metric-card {
-    background-color: #1c2333;
-    padding: 20px;
-    border-radius: 15px;
-    text-align: center;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# ---------------- SIDEBAR ----------------
+# SIDEBAR
 st.sidebar.title("🌸 SheShield")
-
 page = st.sidebar.radio(
     "Navigation",
     ["🏠 Home", "🚨 Send SOS", "📋 View Alerts", "📊 Analytics", "🛡️ Safety Tips"]
 )
 
-# ---------------- HOME PAGE ----------------
+# HOME PAGE
 if page == "🏠 Home":
 
     st.title("🌸 SheShield")
     st.subheader("Smart Women Safety & Emergency Response System")
-
-    st.write("## Features")
-    st.write("• Emergency SOS Alerts")
-    st.write("• Women Safety Dashboard")
-    st.write("• Alert Monitoring")
-    st.write("• Smart Emergency Management")
-
-    col1, col2, col3, col4 = st.columns(4)
-
-    with col1:
-        st.markdown("""
-        <div class='metric-card'>
-            <h1>🚨</h1>
-            <h1>24/7</h1>
-            <h3>Emergency Support</h3>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col2:
-        st.markdown("""
-        <div class='metric-card'>
-            <h1>🛡️</h1>
-            <h1>100%</h1>
-            <h3>Women Safety Focus</h3>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col3:
-        st.markdown("""
-        <div class='metric-card'>
-            <h1>⚡</h1>
-            <h1>Instant</h1>
-            <h3>Alert Response</h3>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col4:
-        st.markdown("""
-        <div class='metric-card'>
-            <h1>📞</h1>
-            <h1>24/7</h1>
-            <h3>Helpline Support</h3>
-        </div>
-        """, unsafe_allow_html=True)
 
     st.subheader("📞 24/7 Emergency Helpline")
 
@@ -152,7 +44,7 @@ if page == "🏠 Home":
 📞 <a href="tel:8431918980">Trusted Contact 2: 8431918980</a>
 """, unsafe_allow_html=True)
 
-# ---------------- SEND SOS PAGE ----------------
+# SEND SOS
 elif page == "🚨 Send SOS":
 
     st.title("🚨 Emergency SOS")
@@ -165,7 +57,6 @@ elif page == "🚨 Send SOS":
     )
 
     if location_option == "📍 Live Location":
-
         loc = get_geolocation()
 
         if loc:
@@ -175,13 +66,10 @@ elif page == "🚨 Send SOS":
             st.success(f"📍 Live Location: {location}")
         else:
             location = "Location not found"
-            st.warning("Please allow browser location access")
+            st.warning("Allow browser location access")
 
     else:
-        location = st.text_input(
-            "Enter your location manually",
-            placeholder="Example: MG Road, Bangalore"
-        )
+        location = st.text_input("Enter your location manually")
 
     emergency = st.selectbox(
         "Emergency Type",
@@ -205,18 +93,16 @@ elif page == "🚨 Send SOS":
         df = pd.concat([df, pd.DataFrame([alert])], ignore_index=True)
         df.to_csv("alerts.csv", index=False)
 
-        send_email_alert(name, location, emergency)
-
         st.success("Emergency Alert Sent Successfully!")
 
         st.warning("""
-🚨 Alert would also notify:
+🚨 Trusted Contacts:
 
-📞 Trusted Contact 1: 8088630512
-📞 Trusted Contact 2: 8431918980
+📞 8088630512
+📞 8431918980
 """)
 
-# ---------------- VIEW ALERTS ----------------
+# VIEW ALERTS
 elif page == "📋 View Alerts":
 
     st.title("📋 Emergency Alerts")
@@ -226,7 +112,7 @@ elif page == "📋 View Alerts":
     else:
         st.warning("No alerts found.")
 
-# ---------------- ANALYTICS ----------------
+# ANALYTICS
 elif page == "📊 Analytics":
 
     st.title("📊 Emergency Analytics Dashboard")
@@ -234,8 +120,6 @@ elif page == "📊 Analytics":
     if not df.empty:
 
         st.metric("Total Emergency Alerts", len(df))
-
-        st.subheader("📌 Emergency Types")
 
         type_count = df["Emergency Type"].value_counts()
 
@@ -245,10 +129,7 @@ elif page == "📊 Analytics":
             labels={'x': 'Emergency Type', 'y': 'Count'},
             title="Emergency Alerts by Type"
         )
-
         st.plotly_chart(fig)
-
-        st.subheader("📍 Alerts by Location")
 
         location_count = df["Location"].value_counts()
 
@@ -257,36 +138,21 @@ elif page == "📊 Analytics":
             names=location_count.index,
             title="Alerts by Location"
         )
-
         st.plotly_chart(pie)
 
-        st.subheader("📋 Full Emergency Data")
         st.dataframe(df)
 
     else:
         st.warning("No emergency alerts found.")
 
-# ---------------- SAFETY TIPS ----------------
+# SAFETY TIPS
 elif page == "🛡️ Safety Tips":
 
     st.title("🛡️ Women Safety Tips")
 
-    st.subheader("🚶 While Traveling")
     st.write("• Share live location with trusted contacts")
     st.write("• Avoid isolated areas at night")
     st.write("• Use verified transport services")
-
-    st.subheader("📱 Mobile Safety")
     st.write("• Keep phone charged")
     st.write("• Save emergency contacts")
-    st.write("• Enable emergency SOS shortcuts")
-
-    st.subheader("🏠 Home Safety")
-    st.write("• Lock doors and windows")
-    st.write("• Do not open doors to strangers")
-    st.write("• Install security alarms if possible")
-
-    st.subheader("🚨 Emergency Tips")
-    st.write("• Stay calm and seek nearby help")
-    st.write("• Call emergency helpline")
     st.write("• Use SOS feature immediately")
